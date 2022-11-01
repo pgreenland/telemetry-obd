@@ -252,7 +252,8 @@ def get_obd_connection(fast:bool, timeout:float)->obd.OBD:
     return an OBD connection instance that connects to the first ELM 327 compatible device
     connected to any of the local serial ports.  If no device found, exit program with error code 1.
     """
-    ports = sorted(obd.scan_serial())
+    #ports = sorted(obd.scan_serial())
+    ports = ["192.168.0.10:35000"]
 
     logging.info(f"identified ports {ports}")
 
@@ -262,7 +263,8 @@ def get_obd_connection(fast:bool, timeout:float)->obd.OBD:
         try:
 
             # OBD(portstr=None, baudrate=None, protocol=None, fast=True, timeout=0.1, check_voltage=True)
-            connection = obd.OBD(portstr=port, fast=fast, timeout=timeout)
+            #connection = obd.OBD(portstr=port, fast=fast, timeout=timeout)
+            connection = obd.OBD("192.168.0.10", 35000, fast=fast, timeout=timeout)
             for t in range(1, CONNECTION_RETRY_COUNT):
 
                 if connection.is_connected():
@@ -345,7 +347,7 @@ try:
                 auto_unlink=False,      # once created, shared memory/dictionary persists on process exit
                 recurse=False           # dictionary can contain dictionary but updates not nested
             )
-    
+
     default_shared_gps_command_list = [
         "NMEA_GNGNS",       # Fix data
         "NMEA_GNGST",       # Pseudorange error statistics
@@ -371,16 +373,16 @@ try:
 
         if 'UltraDict' not in str(type(shared_dictionary)):
             return shared_dictionary
- 
+
         return_value = {}
-        
+
         for key, value in shared_dictionary.items():
             logging.info(f"key {key} value type {type(value)}")
             if 'UltraDict' in str(type(shared_dictionary)):
                 return_value[key] = shared_dictionary_to_dictionary(value)
             else:
                 return_value[key] = value
-        
+
         return return_value
 
 except ImportError:
